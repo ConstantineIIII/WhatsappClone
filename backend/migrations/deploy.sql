@@ -1,7 +1,7 @@
 -- WhatsApp Clone - Production Deployment Script
 -- This script runs all migrations in the correct order for production deployment
 
-\echo 'Starting WhatsApp Clone database deployment...'
+-- Starting WhatsApp Clone database deployment...
 
 -- Create a migrations tracking table
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM schema_migrations WHERE version = '001_create_initial_schema') THEN
-        \echo 'Applying migration 001: Creating initial schema...'
+        -- Applying migration 001: Creating initial schema...
         
         -- Enable UUID extension
         CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -210,9 +210,9 @@ BEGIN
         -- Record migration
         INSERT INTO schema_migrations (version) VALUES ('001_create_initial_schema');
         
-        \echo 'Migration 001 completed successfully.'
+        -- Migration 001 completed successfully.
     ELSE
-        \echo 'Migration 001 already applied, skipping.'
+        -- Migration 001 already applied, skipping.
     END IF;
 END
 $$;
@@ -221,7 +221,7 @@ $$;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM schema_migrations WHERE version = '002_seed_initial_data') THEN
-        \echo 'Applying migration 002: Seeding initial data...'
+        -- Applying migration 002: Seeding initial data...
         
         -- Admin user creation
         -- Password: KalelKalel1! (hashed with bcrypt)
@@ -306,9 +306,9 @@ BEGIN
         -- Record migration
         INSERT INTO schema_migrations (version) VALUES ('002_seed_initial_data');
         
-        \echo 'Migration 002 completed successfully.'
+        -- Migration 002 completed successfully.
     ELSE
-        \echo 'Migration 002 already applied, skipping.'
+        -- Migration 002 already applied, skipping.
     END IF;
 END
 $$;
@@ -317,7 +317,7 @@ $$;
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM chats LIMIT 1) THEN
-        \echo 'Creating sample chats and messages...'
+        -- Creating sample chats and messages...
         
         -- Create a sample chat between John and Jane
         INSERT INTO chats (name, is_group, created_by) 
@@ -402,9 +402,9 @@ BEGIN
         SET is_online = false, last_seen = CURRENT_TIMESTAMP - INTERVAL '15 minutes' 
         WHERE username = 'bob_wilson';
         
-        \echo 'Sample data created successfully.'
+        -- Sample data created successfully.
     ELSE
-        \echo 'Sample data already exists, skipping creation.'
+        -- Sample data already exists, skipping creation.
     END IF;
 END
 $$;
@@ -420,15 +420,15 @@ BEGIN
     SELECT COUNT(*) INTO chat_count FROM chats;
     SELECT COUNT(*) INTO message_count FROM messages;
     
-    \echo 'Database deployment completed successfully!'
-    \echo 'Summary:'
+    -- Database deployment completed successfully!
+    -- Summary:
     RAISE NOTICE 'Users created: %', user_count;
     RAISE NOTICE 'Chats created: %', chat_count;
     RAISE NOTICE 'Messages created: %', message_count;
     
     -- Verify admin user exists
     IF EXISTS (SELECT 1 FROM users WHERE is_admin = true AND email = 'kalel@whatsappclone.com') THEN
-        \echo 'Admin user verified: ✓'
+        -- Admin user verified: ✓
     ELSE
         RAISE EXCEPTION 'Admin user creation failed!';
     END IF;
