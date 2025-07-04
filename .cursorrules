@@ -1,0 +1,57 @@
+# Cursor Rules for WhatsApp Clone Project
+
+## Project Structure
+This is a full-stack WhatsApp clone with:
+- **Frontend**: React app in `frontend/` directory
+- **Backend**: Node.js/Express app in `backend/` directory
+- **Database**: PostgreSQL and Redis running in Docker containers
+
+## Server Management
+⚠️ **IMPORTANT**: DO NOT attempt to start servers automatically. Always ask the user to start the servers manually.
+
+### When the user needs to run the application:
+1. **Ask the user to start the servers manually** with these instructions:
+
+   **Terminal 1 - Start Database Containers:**
+   ```bash
+   cd backend
+   docker-compose up -d
+   ```
+
+   **Terminal 2 - Start Backend Server:**
+   ```bash
+   cd backend
+   npm run dev
+   ```
+
+   **Terminal 3 - Start Frontend Server:**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+2. **Never run `npm run dev` from the root directory** - the package.json files are in their respective directories.
+
+3. **Always verify the user has started the servers** before suggesting they test functionality.
+
+## Common Issues to Watch For
+- User trying to run `npm run dev` from root directory (package.json not found)
+- Docker containers not running (PostgreSQL/Redis connection errors)
+- Port conflicts (3000 or 5173 already in use)
+- Redis client connection issues ("client is closed" errors)
+
+## Development Guidelines
+- Focus on code changes and debugging
+- Let the user handle server startup
+- Provide clear instructions when servers need to be started
+- Help troubleshoot server issues when they arise
+
+## Access Points
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:3000
+- **Admin Panel**: http://localhost:3000/admin
+- **Health Check**: http://localhost:3000/health
+
+## Default Login Credentials
+- **Admin**: kalel@whatsappclone.com / KalelKalel1!
+- **Sample Users**: john@example.com, jane@example.com, bob@example.com / password123 

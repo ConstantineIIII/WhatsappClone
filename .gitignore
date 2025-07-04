@@ -1,0 +1,48 @@
+# Node modules (dependency packages)
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Debugging
+.vscode/
+.idea/
+*.sublime-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Optional npm cache
+.npm/
+
+# Coverage and test results
+coverage/
+*.lcov
+
+# Build output
+dist/
+build/
+out/
+
+# Optional: TypeScript
+*.tsbuildinfo
+
+# Optional: PM2 logs
+pids/
+pm2.log

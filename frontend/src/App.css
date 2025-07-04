@@ -1,0 +1,13 @@
+/* App-specific styles can be added here if needed */
+
+body {
+  background-color: #fff;
+  color: #000;
+  transition: background-color 0.7s, color 0.7s;
+  min-height: 100vh;
+  width: 100vw;
+}
+html.dark body {
+  background-color: #000;
+  color: #fff;
+}
