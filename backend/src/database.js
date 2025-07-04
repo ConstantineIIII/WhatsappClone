@@ -29,20 +29,39 @@ postgresPool.on('error', (err, client) => {
 });
 
 // Redis Configuration
-const redisConfig = {
-  socket: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: process.env.REDIS_PORT || 6379,
-    reconnectStrategy: (retries) => {
-      if (retries > 10) {
-        console.error('❌ Redis max retry attempts reached');
-        return false;
+let redisConfig;
+
+if (process.env.REDIS_URL) {
+  // Use REDIS_URL (Render format)
+  redisConfig = {
+    url: process.env.REDIS_URL,
+    socket: {
+      reconnectStrategy: (retries) => {
+        if (retries > 10) {
+          console.error('❌ Redis max retry attempts reached');
+          return false;
+        }
+        return Math.min(retries * 100, 3000);
       }
-      return Math.min(retries * 100, 3000);
     }
-  },
-  password: process.env.REDIS_PASSWORD
-};
+  };
+} else {
+  // Use individual environment variables (local development)
+  redisConfig = {
+    socket: {
+      host: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+      reconnectStrategy: (retries) => {
+        if (retries > 10) {
+          console.error('❌ Redis max retry attempts reached');
+          return false;
+        }
+        return Math.min(retries * 100, 3000);
+      }
+    },
+    password: process.env.REDIS_PASSWORD
+  };
+}
 
 // Create Redis client
 const redisClient = redis.createClient(redisConfig);
