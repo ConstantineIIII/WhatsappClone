@@ -1,7 +1,4 @@
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs').promises;
 const Joi = require('joi');
 const db = require('../database');
 const { authenticateToken } = require('../middleware/auth');
@@ -10,40 +7,6 @@ const router = express.Router();
 
 // Apply authentication middleware to all routes
 router.use(authenticateToken);
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../uploads/profile-pictures');
-    try {
-      await fs.mkdir(uploadDir, { recursive: true });
-      cb(null, uploadDir);
-    } catch (error) {
-      cb(error);
-    }
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, `profile-${req.user.id}-${uniqueSuffix}${path.extname(file.originalname)}`);
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  // Accept only image files
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files are allowed'), false);
-  }
-};
-
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
-});
 
 // Validation schemas
 const updateProfileSchema = Joi.object({
@@ -183,114 +146,8 @@ router.put('/profile', async (req, res) => {
   }
 });
 
-// Upload profile picture
-router.post('/profile-picture', upload.single('profile_picture'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'No file uploaded'
-      });
-    }
-
-    // Generate URL for the uploaded file - use relative URL to work with Vite proxy
-    const profilePictureUrl = `/api/uploads/profile-pictures/${req.file.filename}`;
-
-    // Update user's profile picture URL
-    const result = await db.query(`
-      UPDATE users 
-      SET profile_picture_url = $1, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $2
-      RETURNING id, profile_picture_url
-    `, [profilePictureUrl, req.user.id]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Profile picture uploaded successfully',
-      data: {
-        profile_picture_url: profilePictureUrl
-      }
-    });
-
-  } catch (error) {
-    console.error('Upload profile picture error:', error);
-    
-    // Clean up uploaded file if there was an error
-    if (req.file) {
-      try {
-        await fs.unlink(req.file.path);
-      } catch (unlinkError) {
-        console.error('Failed to delete uploaded file:', unlinkError);
-      }
-    }
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to upload profile picture',
-      error: error.message
-    });
-  }
-});
-
-// Delete profile picture
-router.delete('/profile-picture', async (req, res) => {
-  try {
-    // Get current profile picture URL
-    const userResult = await db.query(
-      'SELECT profile_picture_url FROM users WHERE id = $1',
-      [req.user.id]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    const currentPictureUrl = userResult.rows[0].profile_picture_url;
-
-    // Remove profile picture URL from database
-    await db.query(
-      'UPDATE users SET profile_picture_url = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
-      [req.user.id]
-    );
-
-    // Delete the file if it exists
-    if (currentPictureUrl) {
-      try {
-        // Extract filename from the URL (remove the /api/uploads/profile-pictures/ prefix)
-        const urlParts = currentPictureUrl.split('/');
-        const filename = urlParts[urlParts.length - 1];
-        const filePath = path.join(__dirname, '../../uploads/profile-pictures', filename);
-        await fs.unlink(filePath);
-      } catch (fileError) {
-        console.error('Failed to delete profile picture file:', fileError);
-        // Don't fail the request if file deletion fails
-      }
-    }
-
-    res.json({
-      success: true,
-      message: 'Profile picture deleted successfully'
-    });
-
-  } catch (error) {
-    console.error('Delete profile picture error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to delete profile picture',
-      error: error.message
-    });
-  }
-});
+// Note: Profile picture upload endpoints removed for cloud-free deployment
+// The profile_picture_url field in the database is kept for future cloud storage implementation
 
 // Get user by ID (for public profile viewing)
 router.get('/:userId', async (req, res) => {

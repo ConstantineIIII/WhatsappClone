@@ -9,7 +9,11 @@
     "test": "jest",
     "db:start": "./scripts/start-db.sh",
     "db:stop": "./scripts/stop-db.sh",
-    "db:backup": "./scripts/backup-db.sh"
+    "db:backup": "./scripts/backup-db.sh",
+    "db:deploy": "node scripts/deploy-database.js",
+    "db:deploy:bash": "./scripts/deploy-database.sh",
+    "db:deploy:verify": "node scripts/deploy-database.js --verify",
+    "db:deploy:test": "node scripts/deploy-database.js --test-only"
   },
   "keywords": [
     "whatsapp",
