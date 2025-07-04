@@ -3,17 +3,31 @@ const redis = require('redis');
 require('dotenv').config();
 
 // PostgreSQL Configuration
-const postgresConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'whatsapp_clone',
-  user: process.env.DB_USER || 'whatsapp_user',
-  password: process.env.DB_PASSWORD || 'whatsapp_password',
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-};
+let postgresConfig;
+
+if (process.env.DATABASE_URL) {
+  // Use DATABASE_URL (Render format)
+  postgresConfig = {
+    connectionString: process.env.DATABASE_URL,
+    max: 20, // Maximum number of clients in the pool
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  };
+} else {
+  // Use individual environment variables (local development)
+  postgresConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    database: process.env.DB_NAME || 'whatsapp_clone',
+    user: process.env.DB_USER || 'whatsapp_user',
+    password: process.env.DB_PASSWORD || 'whatsapp_password',
+    max: 20, // Maximum number of clients in the pool
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  };
+}
 
 // Create PostgreSQL connection pool
 const postgresPool = new Pool(postgresConfig);
